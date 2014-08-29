@@ -1,7 +1,5 @@
 package kerberos
 
-import "unsafe"
-
 // #cgo LDFLAGS: -lkrb5 -lk5crypto -lcom_err
 // #include <krb5.h>
 import "C"
@@ -38,7 +36,7 @@ func (c *Context) newError(code C.krb5_error_code) error {
 func (c *Context) NewPrincipal(pname string) (*Principal, error) {
 	var princ C.krb5_principal
 	pnameC := C.CString(pname)
-	defer C.free(unsafe.Pointer(pnameC))
+	defer C.krb5_free_string(c.ctx, pnameC)
 	code := C.krb5_parse_name(c.ctx, pnameC, &princ)
 	if code != 0 {
 		return nil, c.newError(code)
@@ -55,7 +53,7 @@ func (c *Context) FreePrincipal(princ *Principal) {
 
 func (c *Context) Localname(p *Principal) (string, error) {
 	var buf *C.char
-	defer C.free(unsafe.Pointer(buf))
+	defer C.krb5_free_string(c.ctx, buf)
 	code := C.krb5_aname_to_localname(c.ctx, p.princ, 255, buf)
 	if code != 0 {
 		return "", c.newError(code)
@@ -65,7 +63,7 @@ func (c *Context) Localname(p *Principal) (string, error) {
 
 func (c *Context) Unparse(p *Principal) (string, error) {
 	var buf *C.char
-	defer C.free(unsafe.Pointer(buf))
+	defer C.krb5_free_unparsed_name(c.ctx, buf)
 	code := C.krb5_unparse_name(c.ctx, p.princ, &buf)
 	if code != 0 {
 		return "", c.newError(code)
