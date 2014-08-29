@@ -49,7 +49,7 @@ func (c *Context) NewPrincipal(pname string) (*Principal, error) {
 }
 
 func (c *Context) FreePrincipal(p *Principal) {
-	if p != nil {
+	if p.princ != nil {
 		C.krb5_free_principal(c.ctx, p.princ)
 		p.princ = nil
 	}
