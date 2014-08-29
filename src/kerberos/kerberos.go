@@ -30,6 +30,7 @@ func (c *Context) Free() {
 
 func (c *Context) newError(code C.krb5_error_code) error {
 	msg := C.krb5_get_error_message(c.ctx, code)
+	C.krb5_clear_error_message(c.ctx)
 	defer C.krb5_free_error_message(c.ctx, msg)
 	return Error{Code: int(code), Msg: C.GoString(msg)}
 }
