@@ -48,10 +48,10 @@ func (c *Context) NewPrincipal(pname string) (*Principal, error) {
 	return &Principal{princ: princ}, nil
 }
 
-func (c *Context) FreePrincipal(princ *Principal) {
-	if princ != nil {
-		C.krb5_free_principal(c.ctx, princ.princ)
-		princ.princ = nil
+func (c *Context) FreePrincipal(p *Principal) {
+	if p != nil {
+		C.krb5_free_principal(c.ctx, p.princ)
+		p.princ = nil
 	}
 }
 
