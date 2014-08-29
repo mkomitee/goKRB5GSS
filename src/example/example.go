@@ -8,7 +8,7 @@ import (
 const ipname = "user@EXAMPLE.COM"
 
 func main() {
-	ctx, err := kerberos.NewContext()
+	ctx, err := kerberos.NewContext(false)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}

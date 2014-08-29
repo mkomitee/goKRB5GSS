@@ -12,9 +12,14 @@ const (
 	maxLnameSz = 255
 )
 
-func NewContext() (*Context, error) {
+func NewContext(secure bool) (*Context, error) {
 	var ctx C.krb5_context
-	code := C.krb5_init_context(&ctx)
+	var code C.krb5_error_code
+	if secure {
+		code = C.krb5_init_secure_context(&ctx)
+	} else {
+		code = C.krb5_init_context(&ctx)
+	}
 	if code != 0 {
 		return nil, Error{
 			Code: int(code),
