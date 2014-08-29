@@ -13,22 +13,22 @@ func main() {
 		log.Fatalf("Error: %v", err)
 	}
 	defer ctx.Free()
-	log.Printf("Got %+v", *ctx)
+	log.Printf("Context: %+v", *ctx)
 
 	princ, err := ctx.NewPrincipal(ipname)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
 	defer ctx.FreePrincipal(princ)
-	log.Printf("Got %+v", *princ)
+	log.Printf("Principal: %+v", *princ)
 
 	opname, err := ctx.Unparse(princ)
-	log.Printf("Got %+v", opname)
+	log.Printf("Unparse: %s", opname)
 
 	if ipname != opname {
 		log.Printf("%+v != %+v!", ipname, opname)
 	}
 
 	lname, err := ctx.Localname(princ)
-	log.Printf("Got %+v", lname)
+	log.Printf("Localname: %s", lname)
 }

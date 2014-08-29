@@ -8,6 +8,10 @@ type Context struct {
 	ctx C.krb5_context
 }
 
+const (
+	maxLnameSz = 255
+)
+
 func NewContext() (*Context, error) {
 	var ctx C.krb5_context
 	code := C.krb5_init_context(&ctx)
@@ -52,13 +56,12 @@ func (c *Context) FreePrincipal(princ *Principal) {
 }
 
 func (c *Context) Localname(p *Principal) (string, error) {
-	var buf C.char
-	// defer C.krb5_free_string(c.ctx, &buf)
-	code := C.krb5_aname_to_localname(c.ctx, p.princ, 255, &buf)
+	buf := new([maxLnameSz]C.char)
+	code := C.krb5_aname_to_localname(c.ctx, p.princ, maxLnameSz, &buf[0])
 	if code != 0 {
 		return "", c.newError(code)
 	}
-	return C.GoString(&buf), nil
+	return C.GoStringN(&buf[0], maxLnameSz), nil
 }
 
 func (c *Context) Unparse(p *Principal) (string, error) {
