@@ -52,13 +52,13 @@ func (c *Context) FreePrincipal(princ *Principal) {
 }
 
 func (c *Context) Localname(p *Principal) (string, error) {
-	var buf *C.char
-	defer C.krb5_free_string(c.ctx, buf)
-	code := C.krb5_aname_to_localname(c.ctx, p.princ, 255, buf)
+	var buf C.char
+	// defer C.krb5_free_string(c.ctx, &buf)
+	code := C.krb5_aname_to_localname(c.ctx, p.princ, 255, &buf)
 	if code != 0 {
 		return "", c.newError(code)
 	}
-	return C.GoString(buf), nil
+	return C.GoString(&buf), nil
 }
 
 func (c *Context) Unparse(p *Principal) (string, error) {
