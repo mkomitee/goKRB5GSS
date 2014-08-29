@@ -8,9 +8,9 @@ import "C"
 
 type Error struct {
 	Major, Minor int
-	Msg string
+	Msg          string
 }
 
-func (e Error)Error() string {
+func (e Error) Error() string {
 	return e.Msg
 }
