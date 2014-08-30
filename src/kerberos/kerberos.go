@@ -1,5 +1,7 @@
 package kerberos
 
+import "runtime"
+
 // #cgo LDFLAGS: -lkrb5 -lk5crypto -lcom_err
 // #include <krb5.h>
 import "C"
@@ -25,10 +27,12 @@ func NewContext(secure bool) (*Context, error) {
 			Code: int(code),
 			Msg:  "Cannot initialize Kerberos Context"}
 	}
-	return &Context{ctx: ctx}, nil
+	c := &Context{ctx: ctx}
+	runtime.SetFinalizer(c, freeContext)
+	return c, nil
 }
 
-func (c *Context) Free() {
+func freeContext(c *Context) {
 	if c.ctx != nil {
 		C.krb5_free_context(c.ctx)
 		c.ctx = nil
@@ -50,14 +54,9 @@ func (c *Context) NewPrincipal(pname string) (*Principal, error) {
 	if code != 0 {
 		return nil, c.newError(code)
 	}
-	return &Principal{princ: princ}, nil
-}
-
-func (c *Context) FreePrincipal(p *Principal) {
-	if p.princ != nil {
-		C.krb5_free_principal(c.ctx, p.princ)
-		p.princ = nil
-	}
+	p := &Principal{princ: princ, ctx: c}
+	runtime.SetFinalizer(p, freePrincipal)
+	return p, nil
 }
 
 func (c *Context) Localname(p *Principal) (string, error) {
@@ -90,4 +89,13 @@ func (e Error) Error() string {
 
 type Principal struct {
 	princ C.krb5_principal
+	ctx   *Context
+}
+
+func freePrincipal(p *Principal) {
+	if p.princ != nil && p.ctx.ctx != nil {
+		C.krb5_free_principal(p.ctx.ctx, p.princ)
+		p.princ = nil
+		p.ctx = nil // Destroy our reference to the ctx so it can be freed.
+	}
 }

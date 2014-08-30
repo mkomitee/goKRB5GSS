@@ -12,14 +12,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
-	defer ctx.Free()
 	log.Printf("Context: %+v", *ctx)
 
 	princ, err := ctx.NewPrincipal(ipname)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
-	defer ctx.FreePrincipal(princ)
 	log.Printf("Principal: %+v", *princ)
 
 	opname, err := ctx.Unparse(princ)
